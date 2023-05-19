@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "530854665001",
+    "project_id": "hrsystem-bfd42",
+    "storage_bucket": "hrsystem-bfd42.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530854665001:android:ca3960b1517f9f41bdb538",
+        "android_client_info": {
+          "package_name": "com.example.hr_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "530854665001-7cuvep78r1peeggq6j4mvrlo9p5qf3sb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBegksCJ5v4lOI3Zz0nnl1xkA71AOZHiNE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "530854665001-7cuvep78r1peeggq6j4mvrlo9p5qf3sb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "530854665001-qha61aplsb62vtjiskgt3o2v1j8b472a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.hrSystem"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
