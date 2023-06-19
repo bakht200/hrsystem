@@ -12,7 +12,7 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
   signInUser(email, password) async {
     emit(AuthenticationLoading());
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       emit(AuthenticationSuccess());
     } on FirebaseAuthException catch (e) {

@@ -1,8 +1,190 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:hr_system/view/leave.dart';
 import 'package:intl/intl.dart';
 import 'package:timer_builder/timer_builder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+String buttonText = 'Check in';
+
+class HourTrackerPage extends StatefulWidget {
+  @override
+  _HourTrackerPageState createState() => _HourTrackerPageState();
+}
+
+class _HourTrackerPageState extends State<HourTrackerPage> {
+  DateTime? startTime;
+  DateTime? endTime;
+  Duration? loggedTime;
+
+  void startLogging() {
+    setState(() {
+      startTime = DateTime.now();
+      endTime = null;
+      loggedTime = null;
+    });
+  }
+
+  void stopLogging() {
+    setState(() {
+      endTime = DateTime.now();
+      loggedTime = endTime!.difference(startTime!);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final formattedStartTime = startTime != null
+        ? DateFormat('HH:mm:ss').format(startTime!)
+        : 'Not started';
+    final formattedEndTime = endTime != null
+        ? DateFormat('HH:mm:ss').format(endTime!)
+        : 'Not stopped';
+    final formattedLoggedTime = loggedTime != null
+        ? '${loggedTime!.inHours}h ${loggedTime!.inMinutes.remainder(60)}m'
+        : 'Not logged';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Hour Tracker'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Start Time: $formattedStartTime',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'End Time: $formattedEndTime',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Logged Time: $formattedLoggedTime',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            SizedBox(height: 32.0),
+            ElevatedButton(
+              onPressed: startTime == null ? startLogging : stopLogging,
+              child: Text(startTime == null ? 'Start Logging' : 'Stop Logging'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Change Button Text on Tap'),
+        ),
+        body: Center(
+          child: MyButton(),
+        ),
+      ),
+    );
+  }
+}
+
+class MyButton extends StatefulWidget {
+  @override
+  _MyButtonState createState() => _MyButtonState();
+}
+
+class _MyButtonState extends State<MyButton> {
+  String buttonText = 'Check in';
+  Color buttonColor = Color(0xFF30475E);
+
+  Future<void> addUserCollection() async {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc()
+        .collection('attendance')
+        .add({
+      'CHECKIN': '123123123123',
+      'id': '1234',
+      'CHECKOUT': '0',
+      'AVERAGE': '0'
+    }).then((value) {
+      print("Student data Added");
+    }).catchError((error) {
+      print("Student couldn't be added.");
+    });
+  }
+
+  signout() {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc()
+        .collection('attendance')
+        .doc()
+        .update({'CHECKOUT': '0', 'AVERAGE': '0'}).then((value) {
+      print("Student data Added");
+    }).catchError((error) {
+      print("Student couldn't be added.");
+    });
+  }
+
+  void changeButtonText() {
+    setState(() {
+      if (buttonText == 'Check in') {
+        addUserCollection();
+
+        Fluttertoast.showToast(
+            msg: "Signed in at " + DateTime.now().toString(),
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
+        buttonText = 'Checked in';
+        buttonColor = Colors.green;
+      } else {
+        buttonText = 'Check in';
+        buttonColor = Color(0xFF30475E);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: changeButtonText,
+      child: Container(
+        height: 50,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: buttonColor,
+          border: Border.all(
+            color: buttonColor,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+        ),
+        child: Center(
+          child: Text(
+            buttonText,
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -12,6 +194,18 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  String buttonText = 'Check in';
+
+  void changeButtonText() {
+    setState(() {
+      if (buttonText == 'Check in') {
+        buttonText = 'Checked in';
+      } else {
+        buttonText = 'Check in';
+      }
+    });
+  }
+
   String getSystemTime() {
     var now = new DateTime.now();
     return new DateFormat("hh:mm:ss a").format(now);
@@ -81,11 +275,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     }),
                     Text(
-                      "${DateFormat("dd MM yyyy").format(DateTime.now())}",
+                      "${DateFormat.yMMMMd('en_US').format(DateTime.now())}",
                       style: const TextStyle(
                           color: Color(0xff2d386b),
                           fontSize: 18,
-                          fontWeight: FontWeight.w300),
+                          fontWeight: FontWeight.w500),
                     )
                   ],
                 ),
@@ -94,27 +288,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(
               height: 10,
             ),
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                  height: 50,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                      color: const Color(0xFF30475E),
-                      border: Border.all(
-                        color: const Color(0xFF30475E),
-                      ),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(10))),
-                  child: const Center(
-                      child: Text(
-                    "Check in",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  ))),
-            ),
+            MyButton(),
             const SizedBox(
               height: 10,
             ),
@@ -122,7 +296,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => LeaveScreen(),
+                        ),
+                      );
+                    },
                     child: Container(
                         height: 50,
                         decoration: BoxDecoration(
@@ -143,7 +323,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 SizedBox(
-                  width: 20,
+                  width: 10,
                 ),
                 Expanded(
                   child: GestureDetector(
