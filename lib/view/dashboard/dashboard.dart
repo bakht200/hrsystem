@@ -108,13 +108,12 @@ class _MyButtonState extends State<MyButton> {
   Future<void> addUserCollection() async {
     FirebaseFirestore.instance
         .collection('users')
-        .doc()
-        .collection('attendance')
-        .add({
-      'CHECKIN': '123123123123',
-      'id': '1234',
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .set({
+      'CHECKIN': DateTime.now(),
       'CHECKOUT': '0',
-      'AVERAGE': '0'
+      'AVERAGE': '0',
+      'user': FirebaseAuth.instance.currentUser!.uid
     }).then((value) {
       print("Student data Added");
     }).catchError((error) {
@@ -122,15 +121,29 @@ class _MyButtonState extends State<MyButton> {
     });
   }
 
-  signout() {
+  signout() async {
+    DocumentSnapshot snapshot;
+
+    var data1 = (await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get())
+        .data()!['CHECKIN']
+        .toString();
+
+    print(data1);
+
+    var averageTime =
+        DateTime.now().difference(DateTime.parse(data1)).inMinutes;
+
     FirebaseFirestore.instance
         .collection('users')
-        .doc()
-        .collection('attendance')
-        .doc()
-        .update({'CHECKOUT': '0', 'AVERAGE': '0'}).then((value) {
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({'CHECKOUT': DateTime.now(), 'AVERAGE': averageTime}).then(
+            (value) {
       print("Student data Added");
     }).catchError((error) {
+      print(error);
       print("Student couldn't be added.");
     });
   }
@@ -152,6 +165,7 @@ class _MyButtonState extends State<MyButton> {
         buttonText = 'Checked in';
         buttonColor = Colors.green;
       } else {
+        signout();
         buttonText = 'Check in';
         buttonColor = Color(0xFF30475E);
       }
