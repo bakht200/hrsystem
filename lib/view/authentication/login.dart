@@ -1,7 +1,10 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_system/cubit/authentication/authentication_cubit.dart';
+import 'package:hr_system/view/bottom_nav_bar.dart';
 import 'package:hr_system/view/dashboard/dashboard.dart';
 import 'package:hr_system/view/snackbar_widget.dart';
 
@@ -59,7 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.of(dialogueContext!).pop();
 
           Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (builder) => DashboardScreen()),
+              MaterialPageRoute(
+                  builder: (builder) => PersistentBottomNavBarScreen(
+                        index: 0,
+                      )),
               (Route<dynamic> route) => false);
         } else if (state is AuthenticationUserNotFound) {
           final _snackBar = snackBar('User not found', Icons.done, Colors.red);

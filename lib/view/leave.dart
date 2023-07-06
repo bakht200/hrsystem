@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,6 +24,7 @@ class MyDatePicker extends StatefulWidget {
 class _MyDatePickerState extends State<MyDatePicker> {
   DateTime? selectedDate;
   TextEditingController? _dateController;
+
   @override
   void initState() {
     super.initState();
@@ -114,12 +117,23 @@ class LeaveScreen extends StatefulWidget {
 
 class _LeaveScreenState extends State<LeaveScreen> {
   Color _backgroundColor = Colors.grey;
+  TextEditingController _textEditingController = TextEditingController();
+  bool isTodaySelected = true;
+  DateTime currentDate = DateTime.now();
+  String? formattedDate;
 
   void changeBackgroundColor() {
     setState(() {
       _backgroundColor =
           _backgroundColor == Colors.grey ? Colors.blue : Colors.grey;
     });
+  }
+
+  @override
+  void initState() {
+    formattedDate =
+        "${currentDate.day}-${currentDate.month}-${currentDate.year}";
+    super.initState();
   }
 
   @override
@@ -161,7 +175,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                 ],
               ),
               SizedBox(
-                height: 4,
+                height: 100,
               ),
               Text(
                 "State the reason for taking a leave",
@@ -175,10 +189,20 @@ class _LeaveScreenState extends State<LeaveScreen> {
                 shrinkWrap: true,
                 crossAxisCount: 2, // Number of columns
                 children: <Widget>[
-                  buildSquareButton(Colors.red, Icons.star, ("Sick")),
-                  buildSquareButton(Colors.blue, Icons.favorite, ("Sick")),
-                  buildSquareButton(Colors.green, Icons.thumb_up, ("Sick")),
-                  buildSquareButton(Colors.orange, Icons.thumb_down, ("Sick")),
+                  buildSquareButton(
+                      Colors.red, Icons.pending_actions, ("Urgent")),
+                  buildSquareButton(
+                    Colors.blue,
+                    Icons.sick,
+                    ("Sick"),
+                  ),
+                  buildSquareButton(
+                    Colors.green,
+                    Icons.self_improvement,
+                    ("PTO"),
+                  ),
+                  buildSquareButton(Color.fromARGB(255, 237, 139, 46),
+                      Icons.more_horiz, ("Other")),
                 ],
               ),
             ],
@@ -188,32 +212,105 @@ class _LeaveScreenState extends State<LeaveScreen> {
     );
   }
 
-  Widget buildSquareButton(Color color, IconData icon, String reason) {
+  Widget buildSquareButton(
+    Color color,
+    IconData icon,
+    String reason,
+  ) {
     return GestureDetector(
       onTap: () {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Reason'),
+              title: Text('Select date for leave'),
               content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('This is a popup message.'),
-                  MyDatePicker(),
+                  Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isTodaySelected = true;
+                            _textEditingController.text = "Today's Date";
+                          });
+
+                          DateTime today = DateTime.now();
+                          formattedDate =
+                              "${today.day}-${today.month}-${today.year}";
+                          print(
+                              formattedDate); // You can replace this with your desired logic
+                        },
+                        child: Text("Today"),
+                        style: ElevatedButton.styleFrom(
+                          primary: isTodaySelected ? Colors.blue : Colors.grey,
+                          onPrimary: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isTodaySelected = false;
+                            _textEditingController.text = "Tomorrow's Date";
+                          });
+
+                          DateTime tomorrow =
+                              DateTime.now().add(Duration(days: 1));
+                          formattedDate =
+                              "${tomorrow.day}-${tomorrow.month}-${tomorrow.year}";
+                          print(
+                              formattedDate); // You can replace this with your desired logic
+                        },
+                        child: Text("Tomorrow"),
+                        style: ElevatedButton.styleFrom(
+                          primary: !isTodaySelected ? Colors.blue : Colors.grey,
+                          onPrimary: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    print(formattedDate);
+                    final FirebaseAuth auth = FirebaseAuth.instance;
+                    User? user = auth.currentUser;
+                    final uid = user!.uid;
+                    CollectionReference users = FirebaseFirestore.instance
+                        .collection('user_leave_request');
+
+                    // Call the user's CollectionReference to add a new user
+                    users.add({
+                      'reason': reason, // John Doe
+                      'date': formattedDate, // Stokes and Sons
+                      'user': uid // 42
+                    }).then((value) {
+                      print("User Added");
+                      Navigator.of(context).pop();
+                    }).catchError((error) {
+                      Navigator.of(context).pop();
+
+                      print("Failed to add user: $error");
+                    });
                   },
-                  child: Text('Close'),
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ],
             );
           },
         );
-        ;
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -245,6 +342,27 @@ class _LeaveScreenState extends State<LeaveScreen> {
             height: 150,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class TodayDateButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        DateTime today = DateTime.now();
+        String formattedDate = "${today.day}-${today.month}-${today.year}";
+        print(formattedDate); // You can replace this with your desired logic
+      },
+      child: Text("Today's Date"),
+      style: ElevatedButton.styleFrom(
+        primary: Colors.blue,
+        onPrimary: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
       ),
     );
   }
