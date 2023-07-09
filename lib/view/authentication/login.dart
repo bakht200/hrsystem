@@ -93,6 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(_snackBar);
 
           Navigator.of(dialogueContext!).pop();
+        } else if (password.text.length < 8) {
+          final _snackBar =
+              snackBar('Invalid password', Icons.done, Colors.red);
+          ScaffoldMessenger.of(context).showSnackBar(_snackBar);
         }
       },
       child: Scaffold(

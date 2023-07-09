@@ -5,6 +5,8 @@ import 'package:hr_system/view/dashboard/dashboard.dart';
 import 'package:hr_system/view/setting.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
+import '../chatScreen.dart';
+
 class PersistentBottomNavBarScreen extends StatefulWidget {
   final int index;
   PersistentBottomNavBarScreen({required this.index});
@@ -26,7 +28,7 @@ class _PersistentBottomNavBarScreenState
   List<Widget> _buildScreens() {
     return [
       DashboardScreen(),
-      Chat(),
+      ChatScreen(),
       SettingPage(),
     ];
   }

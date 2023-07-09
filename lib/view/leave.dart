@@ -153,12 +153,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 20.0,
-                        backgroundImage: NetworkImage(
-                            'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGVyc29ufGVufDB8fDB8fHww&w=1000&q=80'),
-                        backgroundColor: Colors.transparent,
-                      ),
                       SizedBox(
                         width: 10,
                       ),
@@ -171,7 +165,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
                       )
                     ],
                   ),
-                  Icon(Icons.notifications)
                 ],
               ),
               SizedBox(
@@ -290,9 +283,11 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
                     // Call the user's CollectionReference to add a new user
                     users.add({
+                      'status': 'no response',
                       'reason': reason, // John Doe
                       'date': formattedDate, // Stokes and Sons
-                      'user': uid // 42
+                      'user': uid,
+                      'email': user.email,
                     }).then((value) {
                       print("User Added");
                       Navigator.of(context).pop();
