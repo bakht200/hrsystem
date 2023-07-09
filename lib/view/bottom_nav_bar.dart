@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hr_system/view/chat.dart';
 import 'package:hr_system/view/dashboard/dashboard.dart';
 import 'package:hr_system/view/setting.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 
 import '../chatScreen.dart';
 
@@ -89,7 +89,7 @@ class _PersistentBottomNavBarScreenState
         duration: Duration(milliseconds: 200),
       ),
       navBarStyle:
-          NavBarStyle.style1, // Choose the nav bar style with this property.
+          NavBarStyle.style2, // Choose the nav bar style with this property.
     );
   }
 }

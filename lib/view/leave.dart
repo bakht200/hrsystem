@@ -286,9 +286,18 @@ class _LeaveScreenState extends State<LeaveScreen> {
                       'status': 'no response',
                       'reason': reason, // John Doe
                       'date': formattedDate, // Stokes and Sons
-                      'user': uid,
+                      'id': '',
                       'email': user.email,
-                    }).then((value) {
+                    }).then((value) async {
+                      await FirebaseFirestore.instance
+                          .collection('user_leave_request')
+                          .doc(value.id)
+                          .update({
+                            'id': value.id,
+                          })
+                          .then((value) => print("User Updated"))
+                          .catchError((error) =>
+                              print("Failed to update user: $error"));
                       print("User Added");
                       Navigator.of(context).pop();
                     }).catchError((error) {
